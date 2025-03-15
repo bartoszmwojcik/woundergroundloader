@@ -1,59 +1,78 @@
-# Wunderground Weather Station Data Loader
+# Weather Underground Data Loader
 
-This tool fetches weather data from a Weather Underground personal weather station and stores it in a SQLite database.
+A Python tool to fetch and store weather data from a Weather Underground Personal Weather Station into a SQLite database.
 
-## Setup
+## Features
 
-1. Install the required dependencies:
+- Fetches historical weather data from Weather Underground API
+- Stores data in SQLite database with automatic deduplication
+- Supports hourly data collection
+- Calculates wind turbine power output based on wind speed
+- Handles large date ranges efficiently with progress tracking
+- Memory-efficient processing (processes one record at a time)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone git@github.com:bartoszmwojcik/woundergroundloader.git
+cd woundergroundloader
+```
+
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Create a `.env` file in the root directory with your Weather Underground API credentials:
-```
+3. Create a `.env` file with your Weather Underground API credentials:
+```bash
 WUNDERGROUND_API_KEY=your_api_key_here
-STATION_ID=your_station_id_here
+WUNDERGROUND_STATION_ID=your_station_id_here
 ```
 
 ## Usage
 
-To start collecting weather data:
+### Basic Usage
+
+To fetch the last 30 days of data:
 ```bash
 python main.py
 ```
 
-The script will:
-- Create a SQLite database if it doesn't exist
-- Fetch weather data from your station every 5 minutes
-- Store new data points in the database
-- Skip any duplicate data points
-- Log all activities to the console
+### Specific Date Range
 
-## Data Structure
+To fetch data for a specific date range:
+```bash
+python main.py --start-date 2023-01-01 --end-date 2023-12-31
+```
 
-The weather data is stored in a SQLite database with the following fields:
-- timestamp: Date and time of the observation
-- temperature: Temperature in Celsius
-- humidity: Relative humidity percentage
-- pressure: Atmospheric pressure
-- wind_speed: Wind speed
-- wind_direction: Wind direction in degrees
-- precipitation: Precipitation amount
-- solar_radiation: Solar radiation level
-- uv_index: UV index
-- station_id: Weather station identifier
+### Last N Days
 
-## Configuration
+To fetch data for the last N days:
+```bash
+python main.py --days 365
+```
 
-You can modify the following settings in `config.py`:
-- UPDATE_INTERVAL: Time between data fetches (default: 300 seconds / 5 minutes)
-- DATABASE_URL: SQLite database location
-- API endpoints and other configuration
+## Data Storage
 
-## Error Handling
+Weather data is stored in a SQLite database (`weather_data.db`) with the following measurements:
+- Temperature (°C)
+- Wind Speed (km/h)
+- Wind Direction (degrees)
+- Wind Chill (°C)
+- Wind Gusts (km/h)
+- Precipitation (mm)
+- Pressure (hPa/mb)
+- Calculated Wind Power (W)
 
-The tool includes comprehensive error handling and logging:
-- Failed API requests are logged with error details
-- Database connection issues are caught and logged
-- Duplicate data entries are detected and skipped
-- All activities are logged to the console with timestamps 
+## Wind Power Calculation
+
+The tool calculates theoretical wind power output based on wind speed:
+- Below 2 km/h: 0W (no power generation)
+- Above 12 km/h: 1600W (maximum power)
+- Between 2-12 km/h: Power = 16 * (windspeed_ms - 2)²
+  where windspeed_ms is wind speed in meters per second
+
+## Contributing
+
+Feel free to submit issues and enhancement requests! 
