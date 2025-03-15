@@ -34,5 +34,6 @@ env/
 # Project specific
 .env
 *.db
+*.db-journal
 weather_data.db
 *.log 
